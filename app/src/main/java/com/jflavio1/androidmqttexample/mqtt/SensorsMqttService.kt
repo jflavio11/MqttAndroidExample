@@ -1,15 +1,13 @@
 package com.jflavio1.androidmqttexample.mqtt
 
-import android.app.job.JobParameters
-import android.app.job.JobService
 import android.os.Build
-import android.provider.Settings
 import android.support.annotation.RequiresApi
 import android.util.Log
+import com.firebase.jobdispatcher.JobParameters
+import com.firebase.jobdispatcher.JobService
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttMessage
+
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 /**
@@ -28,18 +26,17 @@ class SensorsMqttService : JobService(), BaseMqttModel {
         val MQTT_CONNECT = "mqtt_connect"
         val MQTT_DISCONNECT = "mqtt_disconnect"
 
-        // TODO server url
-        val MQTT_SERVER_URL = ""
+        val MQTT_SERVER_URL = "broker.hivemq.com"
     }
 
     // TODO have a VIEW representation here?
 
     override fun onStartJob(params: JobParameters?): Boolean {
-        this.mqttCliendId = System.getenv(Settings.Secure.ANDROID_ID)
+        this.mqttCliendId = Build.SERIAL
 
-        if (MQTT_CONNECT == params!!.extras.getString(MQTT_START_REASON)) {
+        if (MQTT_CONNECT == params!!.extras!!.getString(MQTT_START_REASON)) {
             connectToServer()
-        } else if (MQTT_DISCONNECT == params.extras.getString(MQTT_START_REASON)) {
+        } else if (MQTT_DISCONNECT == params.extras!!.getString(MQTT_START_REASON)) {
             disconnectFromServer()
         }
 
@@ -73,9 +70,11 @@ class SensorsMqttService : JobService(), BaseMqttModel {
 
         this.mqttClient.subscribe(topicName, 0, this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
+                logMqtt("Success subscribing to topic $topicName")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                logMqtt("Failure on topic subscription")
             }
         }) { topic, message -> }
 
