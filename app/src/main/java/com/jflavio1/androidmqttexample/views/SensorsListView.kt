@@ -1,5 +1,6 @@
 package com.jflavio1.androidmqttexample.views
 
+import android.content.Context
 import com.jflavio1.androidmqttexample.model.TempSensor
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
 
@@ -11,8 +12,18 @@ import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
  */
 interface SensorsListView {
 
-    fun setPresenter(presenter: SensorsListPresenter)
+    fun setSensorPresenter(presenter: SensorsListPresenter)
+
+    fun onMqttConnected()
+
+    fun onMqttError(errorCode: Int)
+
+    fun onMqttDisconnected()
+
+    fun onMqttStopped()
 
     fun setSensorsTemperature(sensors: ArrayList<TempSensor>)
+
+    fun getViewContext() : Context
 
 }

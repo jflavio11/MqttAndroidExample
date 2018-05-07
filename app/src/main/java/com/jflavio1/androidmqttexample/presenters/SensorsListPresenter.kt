@@ -8,6 +8,8 @@ package com.jflavio1.androidmqttexample.presenters
  */
 interface SensorsListPresenter {
 
+    fun initMqttService()
+
     fun getTemperatures()
 
 }
