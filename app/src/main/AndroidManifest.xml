@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.jflavio1.androidmqttexample">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -19,12 +23,12 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".mqtt.SensorsMqttService"
-                 android:permission="android.permission.BIND_JOB_SERVICE">
-            <intent-filter>
-                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE"/>
-            </intent-filter>
+        <service
+            android:exported="false"
+            android:name=".mqtt.SensorsMqttService">
         </service>
+
+        <service android:name="org.eclipse.paho.android.service.MqttService"/>
 
     </application>
 

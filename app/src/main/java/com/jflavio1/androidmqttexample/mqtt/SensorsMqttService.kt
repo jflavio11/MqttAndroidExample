@@ -1,22 +1,22 @@
 package com.jflavio1.androidmqttexample.mqtt
 
+import android.app.Notification
+import android.app.Service
+import android.content.Intent
 import android.os.Build
-import android.support.annotation.RequiresApi
+import android.os.IBinder
 import android.util.Log
-import com.firebase.jobdispatcher.JobParameters
-import com.firebase.jobdispatcher.JobService
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
 
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 /**
  * SensorsMqttService
  *
  * @author Jose Flavio - jflavio90@gmail.com
  * @since  6/5/17
  */
-class SensorsMqttService : JobService(), BaseMqttModel {
+class SensorsMqttService : Service(), BaseMqttModel {
 
     lateinit var mqttClient: CustomMqttClient
     lateinit var mqttCliendId: String
@@ -26,25 +26,29 @@ class SensorsMqttService : JobService(), BaseMqttModel {
         val MQTT_CONNECT = "mqtt_connect"
         val MQTT_DISCONNECT = "mqtt_disconnect"
 
-        val MQTT_SERVER_URL = "broker.hivemq.com"
+        val MQTT_SERVER_URL = "ws://broker.mqttdashboard.com:8000"
     }
 
     // TODO have a VIEW representation here?
+    override fun onCreate() {
+        super.onCreate()
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // TODO create notificaction for showing on Android Oreo: "You are listening to temperature changes on real time"
+            startForeground(0, Notification())
+        }
+        logMqtt("Created mqtt service...")
+    }
 
-    override fun onStartJob(params: JobParameters?): Boolean {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         this.mqttCliendId = Build.SERIAL
 
-        if (MQTT_CONNECT == params!!.extras!!.getString(MQTT_START_REASON)) {
+        if (MQTT_CONNECT == intent!!.action!!) {
             connectToServer()
-        } else if (MQTT_DISCONNECT == params.extras!!.getString(MQTT_START_REASON)) {
+        } else if (MQTT_DISCONNECT == intent.action) {
             disconnectFromServer()
         }
 
-        return true
-    }
-
-    override fun onStopJob(params: JobParameters?): Boolean {
-        return false
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun connectToServer() {
@@ -56,14 +60,26 @@ class SensorsMqttService : JobService(), BaseMqttModel {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                logErrorMqtt("Error on connecting to server... retry?")
+                logErrorMqtt("Error on connecting to server... retry?: ${exception!!.toString()}")
+                disconnectFromServer()
                 // TODO warn on UI for reconnect?
             }
         })
     }
 
     override fun disconnectFromServer() {
-        this.mqttClient.disconnect()
+        this.mqttClient.disconnect(this, object : IMqttActionListener{
+            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                logMqtt("Disconnected from server attempt success...")
+                SensorsMqttService@mqttClient.close()
+                stopSelf()
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                logMqtt("Failure on triying to disconnect: ${exception.toString()}")
+            }
+
+        })
     }
 
     override fun subscribeToTopic(topicName: String) {
@@ -75,6 +91,7 @@ class SensorsMqttService : JobService(), BaseMqttModel {
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                 logMqtt("Failure on topic subscription")
+                disconnectFromServer()
             }
         }) { topic, message -> }
 
@@ -90,6 +107,17 @@ class SensorsMqttService : JobService(), BaseMqttModel {
 
     private fun logErrorMqtt(text: String) {
         Log.w("MQTT", text)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            stopForeground(true)
+        }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 
 }
