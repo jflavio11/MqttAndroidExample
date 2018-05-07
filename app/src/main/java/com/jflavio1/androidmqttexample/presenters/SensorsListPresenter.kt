@@ -7,6 +7,7 @@ package com.jflavio1.androidmqttexample.presenters
  * @since  6/5/17
  */
 interface SensorsListPresenter {
-    
+
+    fun getTemperatures()
 
 }
