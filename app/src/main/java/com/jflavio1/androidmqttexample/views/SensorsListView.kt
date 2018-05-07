@@ -16,7 +16,7 @@ interface SensorsListView {
 
     fun onMqttConnected()
 
-    fun onMqttError(errorCode: Int)
+    fun onMqttError(errorMessage: String)
 
     fun onMqttDisconnected()
 

@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity(), SensorsListView {
         this.presenter.getTemperatures()
     }
 
-    override fun onMqttError(errorCode: Int) {
+    override fun onMqttError(errorMessage: String) {
     }
 
     override fun onMqttDisconnected() {
