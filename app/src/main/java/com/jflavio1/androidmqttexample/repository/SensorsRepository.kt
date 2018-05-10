@@ -23,11 +23,13 @@ class SensorsRepository(val service: SensorsMqttService) {
     fun getAllSensors(vm: TempSensorViewModel) {
         val message = MqttMessage()
         val jsonMessage = JSONObject()
-        jsonMessage.put("type", "get_sensors")
+        jsonMessage.put(SensorsMqttService.MQTT_MESSAGE_TYPE, GET_SENSORS)
         message.qos = 0
         message.payload = jsonMessage.toString().toByteArray()
 
-        service.mqttClient.publish("sensors", message, service, object: IMqttActionListener{
+        // TODO create publish class
+        // here we ask for home sensors information
+        service.mqttClient.publish(SensorsMqttService.TOPICS[0], message, service, object: IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 Log.d("MqttRepository", "Message get_sensors was sent to topic sensors")
             }

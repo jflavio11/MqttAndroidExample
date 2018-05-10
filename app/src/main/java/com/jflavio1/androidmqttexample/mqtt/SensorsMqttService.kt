@@ -32,6 +32,10 @@ class SensorsMqttService : Service(), BaseMqttModel {
         val CONNECTION_FAILURE = "CONNECTION_FAILURE"
         val CONNECTION_LOST = "CONNECTION_LOST"
         val DISCONNECT_SUCCESS = "DISCONNECT_SUCCESS"
+
+        val MQTT_MESSAGE_TYPE = "TYPE"
+
+        val TOPICS = arrayOf("home_sensors_information", "home_temperatures")
     }
 
     override fun onCreate() {
@@ -60,6 +64,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
     override fun connectToServer() {
         mqttClient = CustomMqttClient(this, MQTT_SERVER_URL, this.mqttCliendId)
 
+        // TODO create callback class
         mqttClient.setCallback(object: MqttCallbackExtended{
             override fun connectComplete(reconnect: Boolean, serverURI: String?) {
             }
@@ -79,12 +84,12 @@ class SensorsMqttService : Service(), BaseMqttModel {
         mqttClient.connect(this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 logMqtt("Success connecting to server... now subscribe to receive messages")
-                subscribeToTopic("temperatures")
+                subscribeToTopic(TOPICS[1])
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                 logErrorMqtt("Error on connecting to server... retry?: ${exception!!.toString()}")
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent("CONNECTION_FAILURE"))
+                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_FAILURE))
                 disconnectFromServer()
                 // TODO warn on UI for reconnect?
             }
@@ -96,7 +101,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 logMqtt("Disconnected from server attempt success...")
                 SensorsMqttService@ mqttClient.close()
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent("DISCONNECT_SUCCESS"))
+                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(DISCONNECT_SUCCESS))
                 stopSelf()
             }
 
@@ -112,12 +117,12 @@ class SensorsMqttService : Service(), BaseMqttModel {
         this.mqttClient.subscribe(topicName, 0, this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 logMqtt("Success subscribing to topic $topicName")
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent("CONNECTION_SUCCESS"))
+                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_SUCCESS))
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
                 logMqtt("Failure on topic subscription")
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent("CONNECTION_FAILURE"))
+                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_FAILURE))
                 disconnectFromServer()
             }
         })

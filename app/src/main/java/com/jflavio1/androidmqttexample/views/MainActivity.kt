@@ -2,6 +2,7 @@ package com.jflavio1.androidmqttexample.views
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.widget.Toast
 import com.jflavio1.androidmqttexample.R
 import com.jflavio1.androidmqttexample.model.TempSensor
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
@@ -38,16 +39,18 @@ class MainActivity : AppCompatActivity(), SensorsListView {
     }
 
     override fun onMqttError(errorMessage: String) {
+        Toast.makeText(this, "Error on connection: $errorMessage", Toast.LENGTH_SHORT).show()
     }
 
     override fun onMqttDisconnected() {
+        Toast.makeText(this, "Disconnected from server...", Toast.LENGTH_SHORT).show()
     }
 
     override fun onMqttStopped() {
     }
 
     override fun setSensorsTemperature(sensors: ArrayList<TempSensor>) {
-
+        // TODO update UI
     }
 
     override fun getViewContext() = this

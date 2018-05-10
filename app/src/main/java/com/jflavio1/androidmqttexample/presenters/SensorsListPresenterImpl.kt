@@ -3,20 +3,15 @@ package com.jflavio1.androidmqttexample.presenters
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.*
-import android.hardware.Sensor
 import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
 import com.jflavio1.androidmqttexample.model.TempSensor
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
 import com.jflavio1.androidmqttexample.repository.SensorsRepository
 import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
 import com.jflavio1.androidmqttexample.views.SensorsListView
-import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService.LocalBinder
-
-
 
 
 /**
@@ -34,30 +29,6 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
     init {
         mqttBroadcast = MqttBroadcast()
         this.view.setSensorPresenter(this)
-    }
-
-    inner class MqttBroadcast: BroadcastReceiver() {
-
-        override fun onReceive(context: Context?, intent: Intent?) {
-
-            if(SensorsMqttService.CONNECTION_SUCCESS == intent!!.action){
-                view.onMqttConnected()
-            }
-
-            if(SensorsMqttService.CONNECTION_FAILURE == intent.action){
-                view.onMqttError("error on connecting")
-            }
-
-            if(SensorsMqttService.CONNECTION_LOST == intent.action){
-                view.onMqttError("connection lost")
-                view.onMqttDisconnected()
-            }
-
-            if(SensorsMqttService.DISCONNECT_SUCCESS == intent.action){
-                view.onMqttStopped()
-            }
-        }
-
     }
 
     override fun initMqttService() {
@@ -95,6 +66,30 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
             this.view.setSensorsTemperature(it!!.toList() as ArrayList<TempSensor>)
         })
         this.repository.getAllSensors(vm)
+    }
+
+    inner class MqttBroadcast: BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            if(SensorsMqttService.CONNECTION_SUCCESS == intent!!.action){
+                view.onMqttConnected()
+            }
+
+            if(SensorsMqttService.CONNECTION_FAILURE == intent.action){
+                view.onMqttError("error on connecting")
+            }
+
+            if(SensorsMqttService.CONNECTION_LOST == intent.action){
+                view.onMqttError("connection lost")
+                view.onMqttDisconnected()
+            }
+
+            if(SensorsMqttService.DISCONNECT_SUCCESS == intent.action){
+                view.onMqttStopped()
+            }
+        }
+
     }
 
     val serviceConnection = object: ServiceConnection {
