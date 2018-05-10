@@ -1,9 +1,14 @@
 package com.jflavio1.androidmqttexample.presenters
 
+import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.os.Build
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
 import com.jflavio1.androidmqttexample.views.SensorsListView
+import android.arch.lifecycle.ViewModelProviders
+import android.support.v4.app.FragmentActivity
+import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
 
 
 /**
@@ -34,7 +39,10 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
     }
 
     override fun getTemperatures() {
-        // TODO call MQTT
+        val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(TempSensorViewModel::class.java)
+        vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<TempSensor>> {
+            this.view.setSensorsTemperature(it!!.toList() as ArrayList<TempSensor>)
+        })
     }
 
 }
