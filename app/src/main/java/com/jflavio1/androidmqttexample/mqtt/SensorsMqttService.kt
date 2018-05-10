@@ -27,6 +27,12 @@ class SensorsMqttService : Service(), BaseMqttModel {
         val MQTT_DISCONNECT = "mqtt_disconnect"
 
         val MQTT_SERVER_URL = "tcp://broker.mqttdashboard.com:1883"
+
+        // connection state filters
+        val CONNECTION_SUCCESS = "CONNECTION_SUCCESS"
+        val CONNECTION_FAILURE = "CONNECTION_FAILURE"
+        val CONNECTION_LOST = "CONNECTION_LOST"
+        val DISCONNECT_SUCCESS = "DISCONNECT_SUCCESS"
     }
 
     override fun onCreate() {

@@ -41,20 +41,20 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
 
         override fun onReceive(context: Context?, intent: Intent?) {
 
-            if("CONNECTION_SUCCESS" == intent!!.action){
+            if(SensorsMqttService.CONNECTION_SUCCESS == intent!!.action){
                 view.onMqttConnected()
             }
 
-            if("CONNECTION_FAILURE" == intent.action){
+            if(SensorsMqttService.CONNECTION_FAILURE == intent.action){
                 view.onMqttError("error on connecting")
             }
 
-            if("CONNECTION_LOST" == intent.action){
+            if(SensorsMqttService.CONNECTION_LOST == intent.action){
                 view.onMqttError("connection lost")
                 view.onMqttDisconnected()
             }
 
-            if("DISCONNECT_SUCCESS" == intent.action){
+            if(SensorsMqttService.DISCONNECT_SUCCESS == intent.action){
                 view.onMqttStopped()
             }
         }
@@ -63,7 +63,7 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
 
     override fun initMqttService() {
 
-        LocalBroadcastManager.getInstance(this.view.getViewContext()).registerReceiver(mqttBroadcast, IntentFilter("CONNECTION_SUCCESS"))
+        LocalBroadcastManager.getInstance(this.view.getViewContext()).registerReceiver(mqttBroadcast, IntentFilter(SensorsMqttService.CONNECTION_SUCCESS))
 
         val startServiceIntent = Intent(this.view.getViewContext(), SensorsMqttService::class.java)
         this.view.getViewContext().bindService(startServiceIntent, serviceConnection, 0)
