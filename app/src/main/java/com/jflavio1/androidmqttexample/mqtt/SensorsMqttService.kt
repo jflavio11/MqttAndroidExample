@@ -22,7 +22,6 @@ class SensorsMqttService : Service(), BaseMqttModel {
     lateinit var mqttCliendId: String
 
     companion object {
-        val MQTT_START_REASON = "reason"
         val MQTT_CONNECT = "mqtt_connect"
         val MQTT_DISCONNECT = "mqtt_disconnect"
 

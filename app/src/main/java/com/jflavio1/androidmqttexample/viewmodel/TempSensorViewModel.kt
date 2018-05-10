@@ -15,12 +15,6 @@ class TempSensorViewModel : ViewModel() {
 
     private var tempSensorsList = MutableLiveData<ArrayList<TempSensor>>()
 
-    fun setSensorsList(list: ArrayList<TempSensor>){
-        val data = MutableLiveData<ArrayList<TempSensor>>()
-        data.value = list
-        this.tempSensorsList = data
-    }
-
     fun getSensors(): LiveData<ArrayList<TempSensor>> {
         return tempSensorsList
     }

@@ -27,7 +27,6 @@ import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService.LocalBinder
  */
 class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter {
 
-    private val TAG = "SensorsPresenter"
     private lateinit var repository : SensorsRepository
     private var mqttService: SensorsMqttService? = null
     private var mqttBroadcast: MqttBroadcast
@@ -91,7 +90,6 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
     }
 
     override fun getTemperatures() {
-        Log.d("Presenter", "Triying to get temperatures from sensors...")
         val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(TempSensorViewModel::class.java)
         vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<TempSensor>> {
             this.view.setSensorsTemperature(it!!.toList() as ArrayList<TempSensor>)
