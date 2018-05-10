@@ -23,6 +23,11 @@ class MainActivity : AppCompatActivity(), SensorsListView {
         SensorsListPresenterImpl(this)
     }
 
+    override fun onDestroy() {
+        this.presenter.stopMqttService()
+        super.onDestroy()
+    }
+
     override fun setSensorPresenter(presenter: SensorsListPresenter) {
         this.presenter = presenter
         this.presenter.initMqttService()

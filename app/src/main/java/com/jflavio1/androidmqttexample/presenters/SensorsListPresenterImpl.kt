@@ -1,14 +1,22 @@
 package com.jflavio1.androidmqttexample.presenters
 
 import android.arch.lifecycle.Observer
-import android.content.Intent
-import android.os.Build
-import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
-import com.jflavio1.androidmqttexample.views.SensorsListView
 import android.arch.lifecycle.ViewModelProviders
+import android.content.*
+import android.hardware.Sensor
+import android.os.Build
+import android.os.IBinder
 import android.support.v4.app.FragmentActivity
+import android.support.v4.content.LocalBroadcastManager
+import android.util.Log
 import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
+import com.jflavio1.androidmqttexample.repository.SensorsRepository
 import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
+import com.jflavio1.androidmqttexample.views.SensorsListView
+import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService.LocalBinder
+
+
 
 
 /**
@@ -20,14 +28,46 @@ import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
 class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter {
 
     private val TAG = "SensorsPresenter"
+    private lateinit var repository : SensorsRepository
+    private var mqttService: SensorsMqttService? = null
+    private var mqttBroadcast: MqttBroadcast
 
     init {
+        mqttBroadcast = MqttBroadcast()
         this.view.setSensorPresenter(this)
+    }
+
+    inner class MqttBroadcast: BroadcastReceiver() {
+
+        override fun onReceive(context: Context?, intent: Intent?) {
+
+            if("CONNECTION_SUCCESS" == intent!!.action){
+                view.onMqttConnected()
+            }
+
+            if("CONNECTION_FAILURE" == intent.action){
+                view.onMqttError("error on connecting")
+            }
+
+            if("CONNECTION_LOST" == intent.action){
+                view.onMqttError("connection lost")
+                view.onMqttDisconnected()
+            }
+
+            if("DISCONNECT_SUCCESS" == intent.action){
+                view.onMqttStopped()
+            }
+        }
+
     }
 
     override fun initMqttService() {
 
+        LocalBroadcastManager.getInstance(this.view.getViewContext()).registerReceiver(mqttBroadcast, IntentFilter("CONNECTION_SUCCESS"))
+
         val startServiceIntent = Intent(this.view.getViewContext(), SensorsMqttService::class.java)
+        this.view.getViewContext().bindService(startServiceIntent, serviceConnection, 0)
+
         startServiceIntent.action = SensorsMqttService.MQTT_CONNECT
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -38,11 +78,36 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
 
     }
 
+    override fun stopMqttService() {
+        this.view.getViewContext().unbindService(serviceConnection)
+        LocalBroadcastManager.getInstance(this.view.getViewContext()).unregisterReceiver(mqttBroadcast)
+        val startServiceIntent = Intent(this.view.getViewContext(), SensorsMqttService::class.java)
+        startServiceIntent.action = SensorsMqttService.MQTT_DISCONNECT
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.view.getViewContext().startForegroundService(startServiceIntent)
+        } else {
+            this.view.getViewContext().startService(startServiceIntent)
+        }
+    }
+
     override fun getTemperatures() {
+        Log.d("Presenter", "Triying to get temperatures from sensors...")
         val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(TempSensorViewModel::class.java)
         vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<TempSensor>> {
             this.view.setSensorsTemperature(it!!.toList() as ArrayList<TempSensor>)
         })
+        this.repository.getAllSensors(vm)
+    }
+
+    val serviceConnection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mqttService = (service as SensorsMqttService.LocalBinder).service
+            repository = SensorsRepository(mqttService!!)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            mqttService = null
+        }
     }
 
 }

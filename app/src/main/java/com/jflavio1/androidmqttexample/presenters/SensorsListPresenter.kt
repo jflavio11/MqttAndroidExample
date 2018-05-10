@@ -10,6 +10,8 @@ interface SensorsListPresenter {
 
     fun initMqttService()
 
+    fun stopMqttService()
+
     fun getTemperatures()
 
 }

@@ -13,7 +13,7 @@ import com.jflavio1.androidmqttexample.model.TempSensor
  */
 class TempSensorViewModel : ViewModel() {
 
-    private lateinit var tempSensorsList: LiveData<ArrayList<TempSensor>>
+    private var tempSensorsList = MutableLiveData<ArrayList<TempSensor>>()
 
     fun setSensorsList(list: ArrayList<TempSensor>){
         val data = MutableLiveData<ArrayList<TempSensor>>()
