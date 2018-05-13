@@ -4,6 +4,7 @@ import android.util.Log
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
 import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
 import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.json.JSONObject
@@ -27,18 +28,23 @@ class SensorsRepository(val service: SensorsMqttService) {
         message.qos = 0
         message.payload = jsonMessage.toString().toByteArray()
 
-        // TODO create publish class
-        // here we ask for home sensors information
-        service.mqttClient.publish(SensorsMqttService.TOPICS[0], message, service, object: IMqttActionListener{
+        // we subscribe to sensors topic
+        service.subscribeToTopic(SensorsMqttService.TOPICS[1], 0, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("MqttRepository", "Message get_sensors was sent to topic sensors")
+                Log.d("Mqtt", "Success subscribing to topic ${SensorsMqttService.TOPICS[0]}")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.d("MqttRepository", "Fail on sending get_sensors message")
+                Log.d("Mqtt", "Failure on topic subscription")
             }
-
+        }, IMqttMessageListener { topic, message ->
+            val array = JSONObject(message.toString()).getJSONObject("payload").getJSONArray("sensors_info")
+            vm.updateSensorsInfo(SensorMapper().mapJsonArray(array))
         })
+
+        // here we ask for home sensors information
+        service.publish(SensorsMqttService.TOPICS[0], message)
+
     }
 
 }

@@ -1,7 +1,7 @@
 package com.jflavio1.androidmqttexample.views
 
 import android.content.Context
-import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.model.CustomLightSensor
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
 
 /**
@@ -22,7 +22,7 @@ interface SensorsListView {
 
     fun onMqttStopped()
 
-    fun setSensorsTemperature(sensors: ArrayList<TempSensor>)
+    fun setSensorsTemperature(sensors: ArrayList<CustomLightSensor>)
 
     fun getViewContext() : Context
 

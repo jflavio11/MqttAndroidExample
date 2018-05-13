@@ -7,7 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.LocalBroadcastManager
-import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.model.CustomLightSensor
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
 import com.jflavio1.androidmqttexample.repository.SensorsRepository
 import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
@@ -25,6 +25,17 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
     private lateinit var repository : SensorsRepository
     private var mqttService: SensorsMqttService? = null
     private var mqttBroadcast: MqttBroadcast
+
+    val serviceConnection = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mqttService = (service as SensorsMqttService.LocalBinder).service
+            repository = SensorsRepository(mqttService!!)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            mqttService = null
+        }
+    }
 
     init {
         mqttBroadcast = MqttBroadcast()
@@ -62,8 +73,8 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
 
     override fun getTemperatures() {
         val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(TempSensorViewModel::class.java)
-        vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<TempSensor>> {
-            this.view.setSensorsTemperature(it!!.toList() as ArrayList<TempSensor>)
+        vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<CustomLightSensor>> {
+            this.view.setSensorsTemperature(it!!)
         })
         this.repository.getAllSensors(vm)
     }
@@ -90,17 +101,6 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
             }
         }
 
-    }
-
-    val serviceConnection = object: ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-            mqttService = (service as SensorsMqttService.LocalBinder).service
-            repository = SensorsRepository(mqttService!!)
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            mqttService = null
-        }
     }
 
 }

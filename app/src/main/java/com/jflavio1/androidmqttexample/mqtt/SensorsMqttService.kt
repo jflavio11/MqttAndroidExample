@@ -35,7 +35,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
 
         val MQTT_MESSAGE_TYPE = "TYPE"
 
-        val TOPICS = arrayOf("home_sensors_information", "home_temperatures")
+        val TOPICS = arrayOf("home_sensors_info", "home_lights")
     }
 
     override fun onCreate() {
@@ -63,28 +63,11 @@ class SensorsMqttService : Service(), BaseMqttModel {
 
     override fun connectToServer() {
         mqttClient = CustomMqttClient(this, MQTT_SERVER_URL, this.mqttCliendId)
-
-        // TODO create callback class
-        mqttClient.setCallback(object: MqttCallbackExtended{
-            override fun connectComplete(reconnect: Boolean, serverURI: String?) {
-            }
-
-            override fun messageArrived(topic: String?, message: MqttMessage?) {
-                logMqtt("Arrived message at topic $topic\n${message.toString()}")
-            }
-
-            override fun connectionLost(cause: Throwable?) {
-            }
-
-            override fun deliveryComplete(token: IMqttDeliveryToken?) {
-            }
-
-        })
-
+        mqttClient.setCallback(CustomMqttCallback(this))
         mqttClient.connect(this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                logMqtt("Success connecting to server... now subscribe to receive messages")
-                subscribeToTopic(TOPICS[1])
+                logMqtt("Success connecting to server...")
+                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_SUCCESS))
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
@@ -112,24 +95,25 @@ class SensorsMqttService : Service(), BaseMqttModel {
         })
     }
 
-    override fun subscribeToTopic(topicName: String) {
-
-        this.mqttClient.subscribe(topicName, 0, this, object : IMqttActionListener {
-            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                logMqtt("Success subscribing to topic $topicName")
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_SUCCESS))
-            }
-
-            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                logMqtt("Failure on topic subscription")
-                LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_FAILURE))
-                disconnectFromServer()
-            }
-        })
+    override fun subscribeToTopic(topicName: String, qos: Int, subscriptionListener: IMqttActionListener?, messageListener: IMqttMessageListener?) {
+        this.mqttClient.subscribe(topicName, qos, this, subscriptionListener, messageListener)
     }
 
     override fun unsubscribeFromTopic(topicName: String) {
         // TODO
+    }
+
+    fun publish(topicName: String, message: MqttMessage){
+        this.mqttClient.publish(topicName, message, this, object: IMqttActionListener{
+            override fun onSuccess(asyncActionToken: IMqttToken?) {
+                Log.d("MqttRepository", "Message get_sensors was sent to topic $topicName")
+            }
+
+            override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
+                Log.d("MqttRepository", "Fail on sending message to topic $topicName")
+            }
+
+        })
     }
 
     private fun logMqtt(text: String) {

@@ -2,9 +2,10 @@ package com.jflavio1.androidmqttexample.views
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.widget.Toast
 import com.jflavio1.androidmqttexample.R
-import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.model.CustomLightSensor
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenterImpl
 
@@ -49,8 +50,11 @@ class MainActivity : AppCompatActivity(), SensorsListView {
     override fun onMqttStopped() {
     }
 
-    override fun setSensorsTemperature(sensors: ArrayList<TempSensor>) {
+    override fun setSensorsTemperature(sensors: ArrayList<CustomLightSensor>) {
         // TODO update UI
+        for(i in sensors.indices) {
+            Log.d("SensorsActivity", sensors[i].name)
+        }
     }
 
     override fun getViewContext() = this

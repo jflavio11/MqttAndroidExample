@@ -3,7 +3,7 @@ package com.jflavio1.androidmqttexample.viewmodel
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import com.jflavio1.androidmqttexample.model.TempSensor
+import com.jflavio1.androidmqttexample.model.CustomLightSensor
 
 /**
  * TempSensorViewModel
@@ -13,9 +13,13 @@ import com.jflavio1.androidmqttexample.model.TempSensor
  */
 class TempSensorViewModel : ViewModel() {
 
-    private var tempSensorsList = MutableLiveData<ArrayList<TempSensor>>()
+    private var tempSensorsList = MutableLiveData<ArrayList<CustomLightSensor>>()
 
-    fun getSensors(): LiveData<ArrayList<TempSensor>> {
+    fun updateSensorsInfo(list: ArrayList<CustomLightSensor>){
+        this.tempSensorsList.postValue(list)
+    }
+
+    fun getSensors(): LiveData<ArrayList<CustomLightSensor>> {
         return tempSensorsList
     }
 
