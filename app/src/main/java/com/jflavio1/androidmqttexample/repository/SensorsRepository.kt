@@ -2,7 +2,7 @@ package com.jflavio1.androidmqttexample.repository
 
 import android.util.Log
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
-import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
+import com.jflavio1.androidmqttexample.viewmodel.LightSensorViewModel
 import org.eclipse.paho.client.mqttv3.IMqttActionListener
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener
 import org.eclipse.paho.client.mqttv3.IMqttToken
@@ -21,7 +21,7 @@ class SensorsRepository(val service: SensorsMqttService) {
         val GET_SENSORS = "GET_SENSORS"
     }
 
-    fun getAllSensors(vm: TempSensorViewModel) {
+    fun getAllSensors(vm: LightSensorViewModel) {
         val message = MqttMessage()
         val jsonMessage = JSONObject()
         jsonMessage.put(SensorsMqttService.MQTT_MESSAGE_TYPE, GET_SENSORS)

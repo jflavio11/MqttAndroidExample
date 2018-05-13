@@ -10,7 +10,7 @@ import android.support.v4.content.LocalBroadcastManager
 import com.jflavio1.androidmqttexample.model.CustomLightSensor
 import com.jflavio1.androidmqttexample.mqtt.SensorsMqttService
 import com.jflavio1.androidmqttexample.repository.SensorsRepository
-import com.jflavio1.androidmqttexample.viewmodel.TempSensorViewModel
+import com.jflavio1.androidmqttexample.viewmodel.LightSensorViewModel
 import com.jflavio1.androidmqttexample.views.SensorsListView
 
 
@@ -72,7 +72,7 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
     }
 
     override fun getTemperatures() {
-        val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(TempSensorViewModel::class.java)
+        val vm = ViewModelProviders.of(this.view.getViewContext() as FragmentActivity).get(LightSensorViewModel::class.java)
         vm.getSensors().observe(this.view.getViewContext() as FragmentActivity, Observer<ArrayList<CustomLightSensor>> {
             this.view.setSensorsTemperature(it!!)
         })

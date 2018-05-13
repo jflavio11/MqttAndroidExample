@@ -6,12 +6,12 @@ import android.arch.lifecycle.ViewModel
 import com.jflavio1.androidmqttexample.model.CustomLightSensor
 
 /**
- * TempSensorViewModel
+ * LightSensorViewModel
  *
  * @author Jose Flavio - jflavio90@gmail.com
  * @since  9/5/17
  */
-class TempSensorViewModel : ViewModel() {
+class LightSensorViewModel : ViewModel() {
 
     private var tempSensorsList = MutableLiveData<ArrayList<CustomLightSensor>>()
 
