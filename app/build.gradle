@@ -44,4 +44,6 @@ dependencies {
 
     implementation libs.rxKotlin
     implementation libs.rxAndroid
+
+    implementation 'com.android.support:recyclerview-v7:27.1.1'
 }
