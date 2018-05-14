@@ -3,7 +3,6 @@ package com.jflavio1.androidmqttexample.views
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Log
 import android.widget.Toast
 import com.jflavio1.androidmqttexample.R
 import com.jflavio1.androidmqttexample.model.CustomLightSensor
