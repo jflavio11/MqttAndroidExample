@@ -2,12 +2,14 @@ package com.jflavio1.androidmqttexample.views
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.widget.Toast
 import com.jflavio1.androidmqttexample.R
 import com.jflavio1.androidmqttexample.model.CustomLightSensor
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenter
 import com.jflavio1.androidmqttexample.presenters.SensorsListPresenterImpl
+import kotlinx.android.synthetic.main.activity_main.*
 
 /**
  * MainActivity
@@ -18,11 +20,19 @@ import com.jflavio1.androidmqttexample.presenters.SensorsListPresenterImpl
 class MainActivity : AppCompatActivity(), SensorsListView {
 
     lateinit var presenter : SensorsListPresenter
+    private var sensorsAdapter = SensorsAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         SensorsListPresenterImpl(this)
+
+        mainActivity_rv.apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            setHasFixedSize(true)
+            adapter = sensorsAdapter
+        }
+
     }
 
     override fun onDestroy() {
@@ -51,10 +61,7 @@ class MainActivity : AppCompatActivity(), SensorsListView {
     }
 
     override fun setSensorsTemperature(sensors: ArrayList<CustomLightSensor>) {
-        // TODO update UI
-        for(i in sensors.indices) {
-            Log.d("SensorsActivity", sensors[i].name)
-        }
+        sensorsAdapter.updateAllList(sensors)
     }
 
     override fun getViewContext() = this
