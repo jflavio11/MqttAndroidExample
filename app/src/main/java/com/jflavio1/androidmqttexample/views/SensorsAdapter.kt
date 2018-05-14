@@ -16,7 +16,7 @@ import com.jflavio1.androidmqttexample.model.CustomLightSensor
  * @author Jose Flavio - jflavio90@gmail.com
  * @since  13/5/17
  */
-class SensorsAdapter : RecyclerView.Adapter<SensorsAdapter.Holder>() {
+class SensorsAdapter(val listener: SensorsAdapterListener) : RecyclerView.Adapter<SensorsAdapter.Holder>() {
 
     private var sensorsList = arrayListOf<CustomLightSensor>()
 
@@ -33,6 +33,9 @@ class SensorsAdapter : RecyclerView.Adapter<SensorsAdapter.Holder>() {
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         holder.fillData(sensorsList[position])
+        holder.itemView.findViewById<ImageView>(R.id.itemSensor_iv_light).setOnClickListener {
+            listener.onSensorLightClick(sensorsList[position])
+        }
     }
 
     class Holder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
@@ -47,7 +50,10 @@ class SensorsAdapter : RecyclerView.Adapter<SensorsAdapter.Holder>() {
             }
 
         }
+    }
 
+    interface SensorsAdapterListener {
+        fun onSensorLightClick(sensor: CustomLightSensor)
     }
 
 }

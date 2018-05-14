@@ -19,13 +19,21 @@ import kotlinx.android.synthetic.main.activity_main.*
  */
 class MainActivity : AppCompatActivity(), SensorsListView {
 
-    lateinit var presenter : SensorsListPresenter
-    private var sensorsAdapter = SensorsAdapter()
+    lateinit var presenter: SensorsListPresenter
+    lateinit private var sensorsAdapter: SensorsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         SensorsListPresenterImpl(this)
+
+        sensorsAdapter = SensorsAdapter(object : SensorsAdapter.SensorsAdapterListener {
+            override fun onSensorLightClick(sensor: CustomLightSensor) {
+
+                // TODO turn on/off light sending a mqtt message!
+
+            }
+        })
 
         mainActivity_rv.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
