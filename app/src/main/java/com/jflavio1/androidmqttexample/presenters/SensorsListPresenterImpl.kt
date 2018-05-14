@@ -79,6 +79,10 @@ class SensorsListPresenterImpl(val view: SensorsListView) : SensorsListPresenter
         this.repository.getAllSensors(vm)
     }
 
+    override fun changeLightState(sensor:CustomLightSensor, turnedOn: Boolean) {
+        this.repository.updateSensorState(sensor, turnedOn)
+    }
+
     inner class MqttBroadcast: BroadcastReceiver() {
 
         override fun onReceive(context: Context?, intent: Intent?) {

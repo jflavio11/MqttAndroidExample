@@ -15,6 +15,15 @@ class LightSensorViewModel : ViewModel() {
 
     private var tempSensorsList = MutableLiveData<ArrayList<CustomLightSensor>>()
 
+    fun updateSensor(sensor: CustomLightSensor){
+        for (i in 0..(tempSensorsList.value!!.size - 1)){
+            if(tempSensorsList.value!![i].id == sensor.id){
+                tempSensorsList.value!![i] = sensor
+            }
+        }
+        this.tempSensorsList.postValue(tempSensorsList.value)
+    }
+
     fun updateSensorsInfo(list: ArrayList<CustomLightSensor>){
         this.tempSensorsList.postValue(list)
     }

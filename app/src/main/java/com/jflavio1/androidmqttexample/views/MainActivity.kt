@@ -29,9 +29,7 @@ class MainActivity : AppCompatActivity(), SensorsListView {
 
         sensorsAdapter = SensorsAdapter(object : SensorsAdapter.SensorsAdapterListener {
             override fun onSensorLightClick(sensor: CustomLightSensor) {
-
-                // TODO turn on/off light sending a mqtt message!
-
+                presenter.changeLightState(sensor, !sensor.lightOn)
             }
         })
 

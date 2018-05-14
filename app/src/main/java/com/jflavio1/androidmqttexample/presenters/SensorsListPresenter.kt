@@ -1,5 +1,7 @@
 package com.jflavio1.androidmqttexample.presenters
 
+import com.jflavio1.androidmqttexample.model.CustomLightSensor
+
 /**
  * SensorsListPresenter
  *
@@ -13,5 +15,7 @@ interface SensorsListPresenter {
     fun stopMqttService()
 
     fun getTemperatures()
+
+    fun changeLightState(sensor: CustomLightSensor, turnedOn: Boolean)
 
 }
