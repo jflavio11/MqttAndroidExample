@@ -7,10 +7,7 @@ import android.os.Binder
 import android.os.Build
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttMessageListener
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttMessage
+import org.eclipse.paho.client.mqttv3.*
 
 
 /**
@@ -37,6 +34,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
         val DISCONNECT_SUCCESS = "DISCONNECT_SUCCESS"
 
         val MQTT_MESSAGE_TYPE = "TYPE"
+        val MQTT_MESSAGE_PAYLOAD = "payload"
 
         val TOPICS = arrayOf("home_sensors_info", "home_lights", "update_sensor_info")
     }
@@ -44,7 +42,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
     override fun onCreate() {
         super.onCreate()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // TODO create notificaction for showing on Android Oreo: "You are listening to temperature changes on real time"
+            // TODO create notification for showing on Android Oreo: "You are listening to temperature changes on real time"
             startForeground(0, Notification())
         }
         logMqtt("Created mqtt service...")
@@ -52,7 +50,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        // This will no work on Android P
+        // TODO gettin Build.SERIAL will no work on Android P
         this.mqttCliendId = Build.SERIAL
 
         if (MQTT_CONNECT == intent!!.action!!) {
@@ -64,10 +62,22 @@ class SensorsMqttService : Service(), BaseMqttModel {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    /**
+     * Connects to the Mqtt Server.
+     */
     override fun connectToServer() {
         mqttClient = CustomMqttClient(this, MQTT_SERVER_URL, this.mqttCliendId)
         mqttClient.setCallback(CustomMqttCallback(this))
-        mqttClient.connect(this, object : IMqttActionListener {
+
+        val options = MqttConnectOptions()
+        options.apply {
+            connectionTimeout = 30
+            isAutomaticReconnect = true
+            isCleanSession = true
+            keepAliveInterval = 120
+        }
+
+        mqttClient.connect(options,this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 logMqtt("Success connecting to server...")
                 LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_SUCCESS))
