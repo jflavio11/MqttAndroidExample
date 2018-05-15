@@ -15,6 +15,11 @@ class LightSensorViewModel : ViewModel() {
 
     private var tempSensorsList = MutableLiveData<ArrayList<CustomLightSensor>>()
 
+    /**
+     * UpdateSensor is a method that is going to receive a [CustomLightSensor] object
+     * from [com.jflavio1.androidmqttexample.repository.SensorsRepository] and it's going
+     * to search the sensor on the sensors list and update it.
+     */
     fun updateSensor(sensor: CustomLightSensor){
         for (i in 0..(tempSensorsList.value!!.size - 1)){
             if(tempSensorsList.value!![i].id == sensor.id){
@@ -24,10 +29,17 @@ class LightSensorViewModel : ViewModel() {
         this.tempSensorsList.postValue(tempSensorsList.value)
     }
 
+    /**
+     * UpdateSensorsInfo is a method that given an [ArrayList] of [CustomLightSensor]
+     * will update all list.
+     */
     fun updateSensorsInfo(list: ArrayList<CustomLightSensor>){
         this.tempSensorsList.postValue(list)
     }
 
+    /**
+     * GetSensors will return the current [ArrayList] as a [LiveData] object.
+     */
     fun getSensors(): LiveData<ArrayList<CustomLightSensor>> {
         return tempSensorsList
     }

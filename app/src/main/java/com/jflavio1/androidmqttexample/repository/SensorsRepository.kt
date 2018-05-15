@@ -23,6 +23,12 @@ class SensorsRepository(val service: SensorsMqttService) {
         val UPDATE_LIGHT_STATE = "UPDATE_LIGHT_STATE"
     }
 
+    /**
+     * GetAllSensors is a method that will subscribe to a specific topic
+     * "home_lights" on [SensorsMqttService.TOPICS] and when a message is received
+     * on that topic it will classify the type of message getting the "type"
+     * string from the MqttMessage.
+     */
     fun getAllSensors(vm: LightSensorViewModel) {
         val message = MqttMessage()
         val jsonMessage = JSONObject()
@@ -42,8 +48,8 @@ class SensorsRepository(val service: SensorsMqttService) {
         }, IMqttMessageListener { topic, message ->
 
             val msgObj = JSONObject(message.toString())
-            val type = msgObj.getString("type")
-            val payload = msgObj.getJSONObject("payload")
+            val type = msgObj.getString(SensorsMqttService.MQTT_MESSAGE_TYPE)
+            val payload = msgObj.getJSONObject(SensorsMqttService.MQTT_MESSAGE_PAYLOAD)
 
             when(type){
 
@@ -53,7 +59,7 @@ class SensorsRepository(val service: SensorsMqttService) {
                 }
 
                 "update_sensor" -> {
-                    val obj = JSONObject(message.toString()).getJSONObject("payload").getJSONObject("sensor_info")
+                    val obj = JSONObject(message.toString()).getJSONObject(SensorsMqttService.MQTT_MESSAGE_PAYLOAD).getJSONObject("sensor_info")
                     vm.updateSensor(SensorMapper().mapJson(obj))
                 }
 
@@ -66,6 +72,11 @@ class SensorsRepository(val service: SensorsMqttService) {
 
     }
 
+    /**
+     * Used for turn on or turn on a light. When the MqttServer receive the message
+     * and the light state is changed, we will be notified by the "update_sensor"
+     * message type that is listened on [getAllSensors] method.
+     */
     fun updateSensorState(customLightSensor: CustomLightSensor, turnedOn: Boolean){
         val message = MqttMessage()
         val jsonMessage = JSONObject()
