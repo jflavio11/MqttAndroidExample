@@ -87,11 +87,13 @@ class SensorsMqttService : Service(), BaseMqttModel {
                 logErrorMqtt("Error on connecting to server... retry?: ${exception!!.toString()}")
                 LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(CONNECTION_FAILURE))
                 disconnectFromServer()
-                // TODO warn on UI for reconnect?
             }
         })
     }
 
+    /**
+     * Disconnect from the Mqtt Server.
+     */
     override fun disconnectFromServer() {
         this.mqttClient.disconnect(this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
@@ -113,9 +115,12 @@ class SensorsMqttService : Service(), BaseMqttModel {
     }
 
     override fun unsubscribeFromTopic(topicName: String) {
-        // TODO
+        this.mqttClient.unsubscribe(topicName)
     }
 
+    /**
+     * Publish a [MqttMessage] into the specified [topicName].
+     */
     fun publish(topicName: String, message: MqttMessage){
         this.mqttClient.publish(topicName, message, this, object: IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
