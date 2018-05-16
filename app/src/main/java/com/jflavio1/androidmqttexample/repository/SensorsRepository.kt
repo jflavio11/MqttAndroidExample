@@ -30,11 +30,6 @@ class SensorsRepository(val service: SensorsMqttService) {
      * string from the MqttMessage.
      */
     fun getAllSensors(vm: LightSensorViewModel) {
-        val message = MqttMessage()
-        val jsonMessage = JSONObject()
-        jsonMessage.put(SensorsMqttService.MQTT_MESSAGE_TYPE, GET_SENSORS)
-        message.qos = 0
-        message.payload = jsonMessage.toString().toByteArray()
 
         // we subscribe to sensors topic
         service.subscribeToTopic(SensorsMqttService.TOPICS[1], 0, object : IMqttActionListener {
@@ -66,6 +61,12 @@ class SensorsRepository(val service: SensorsMqttService) {
             }
 
         })
+
+        val message = MqttMessage()
+        val jsonMessage = JSONObject()
+        jsonMessage.put(SensorsMqttService.MQTT_MESSAGE_TYPE, GET_SENSORS)
+        message.qos = 0
+        message.payload = jsonMessage.toString().toByteArray()
 
         // here we ask for home sensors information
         service.publish(SensorsMqttService.TOPICS[0], message)

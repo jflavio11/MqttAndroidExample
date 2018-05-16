@@ -8,6 +8,7 @@ import android.os.Build
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import org.eclipse.paho.client.mqttv3.*
+import org.json.JSONObject
 
 
 /**
@@ -33,7 +34,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
         val CONNECTION_LOST = "CONNECTION_LOST"
         val DISCONNECT_SUCCESS = "DISCONNECT_SUCCESS"
 
-        val MQTT_MESSAGE_TYPE = "TYPE"
+        val MQTT_MESSAGE_TYPE = "type"
         val MQTT_MESSAGE_PAYLOAD = "payload"
 
         val TOPICS = arrayOf("home_sensors_info", "home_lights", "update_sensor_info")
@@ -68,6 +69,10 @@ class SensorsMqttService : Service(), BaseMqttModel {
     override fun connectToServer() {
         mqttClient = CustomMqttClient(this, MQTT_SERVER_URL, this.mqttCliendId)
         mqttClient.setCallback(CustomMqttCallback(this))
+
+        // enable logs from library
+        mqttClient.setTraceEnabled(true)
+        mqttClient.setTraceCallback(CustomMqttLog())
 
         val options = MqttConnectOptions()
         options.apply {
@@ -111,6 +116,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
     }
 
     override fun subscribeToTopic(topicName: String, qos: Int, subscriptionListener: IMqttActionListener?, messageListener: IMqttMessageListener?) {
+        logMqtt("Subscribing to topic $topicName")
         this.mqttClient.subscribe(topicName, qos, this, subscriptionListener, messageListener)
     }
 
@@ -124,7 +130,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
     fun publish(topicName: String, message: MqttMessage){
         this.mqttClient.publish(topicName, message, this, object: IMqttActionListener{
             override fun onSuccess(asyncActionToken: IMqttToken?) {
-                Log.d("MqttRepository", "Message get_sensors was sent to topic $topicName")
+                logMqtt("Message was sent to topic $topicName")
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
