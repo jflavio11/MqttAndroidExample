@@ -51,15 +51,22 @@ class SensorsMqttService : Service(), BaseMqttModel {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        // TODO gettin Build.SERIAL will no work on Android P
+        // TODO getting Build.SERIAL will no work on Android P
         this.mqttCliendId = Build.SERIAL
 
-        if (MQTT_CONNECT == intent!!.action!!) {
+        if(intent == null) {
+            logErrorMqtt("Null intent in onStartCommand, returning START_NOT_STICKY")
+            stopSelf()
+            return Service.START_NOT_STICKY
+        }
+
+        if (MQTT_CONNECT == intent.action!!) {
             connectToServer()
         } else if (MQTT_DISCONNECT == intent.action) {
             disconnectFromServer()
         }
 
+        // this will return START_STICKY and will recreate the service (with saved start intent) when Android destroys it
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -103,6 +110,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
         this.mqttClient.disconnect(this, object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 logMqtt("Disconnected from server attempt success...")
+                mqttClient.unregisterResources()
                 SensorsMqttService@ mqttClient.close()
                 LocalBroadcastManager.getInstance(this@SensorsMqttService).sendBroadcast(Intent(DISCONNECT_SUCCESS))
                 stopSelf()

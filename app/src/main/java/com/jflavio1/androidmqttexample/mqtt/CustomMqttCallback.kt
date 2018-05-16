@@ -24,6 +24,7 @@ class CustomMqttCallback(val context: Context) : MqttCallbackExtended {
     }
 
     override fun connectionLost(cause: Throwable?) {
+        log("ConnectionLost ${cause.toString()}")
         LocalBroadcastManager.getInstance(context).sendBroadcast(Intent(SensorsMqttService.CONNECTION_LOST))
     }
 

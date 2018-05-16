@@ -24,6 +24,7 @@
         </activity>
 
         <service
+            android:logo="@drawable/ic_light"
             android:exported="false"
             android:name=".mqtt.SensorsMqttService">
         </service>
