@@ -93,7 +93,7 @@ class SensorsRepository(val service: SensorsMqttService) {
         message.payload = jsonMessage.toString().toByteArray()
 
         // here we ask for home sensors information
-        service.publish(SensorsMqttService.TOPICS[2], message)
+        service.publish(SensorsMqttService.TOPICS[0], message)
 
     }
 

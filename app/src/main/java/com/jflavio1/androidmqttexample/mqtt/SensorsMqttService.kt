@@ -37,7 +37,7 @@ class SensorsMqttService : Service(), BaseMqttModel {
         val MQTT_MESSAGE_TYPE = "type"
         val MQTT_MESSAGE_PAYLOAD = "payload"
 
-        val TOPICS = arrayOf("home_sensors_info", "home_lights", "update_sensor_info")
+        val TOPICS = arrayOf("home_sensors_info", "home_lights")
     }
 
     override fun onCreate() {
