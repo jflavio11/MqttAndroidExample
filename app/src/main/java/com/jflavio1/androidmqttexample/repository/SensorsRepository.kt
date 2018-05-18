@@ -74,7 +74,7 @@ class SensorsRepository(val service: SensorsMqttService) {
     }
 
     /**
-     * Used for turn on or turn on a light. When the MqttServer receive the message
+     * Used for turning on or turning off a light. When the MqttServer receive the message
      * and the light state is changed, we will be notified by the "update_sensor"
      * message type that is listened on [getAllSensors] method.
      */
